@@ -29,5 +29,8 @@ class AuthServiceProvider extends ServiceProvider
         if (! $this->app->routesAreCached()) {
           Passport::routes();
         }
+        Passport::tokensCan([
+          'read-list' => 'Read generic list'
+        ]);
     }
 }
