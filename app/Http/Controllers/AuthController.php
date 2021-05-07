@@ -3,87 +3,52 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use App\Http\Requests\AuthLoginRequest;
-use Auth;
+use Auth, Route;
+use Illuminate\Auth\Authenticatable;
 
 class AuthController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
+  public function login(AuthLoginRequest $request)
+  {
+    try {
+      $user = User::where('email', $request->email)->firstOrFail();
+      $credentials = $request->only(['email', 'password']);
+      if (Auth::attempt($credentials)) {
+        die('logueado');
+        // $token = $user->createToken('Token Name', ['read-list'])->accessToken;
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    public function login(AuthLoginRequest $request)
-    {
-      try {
-        $user = User::where('email', $request->email)->firstOrFail();
-        $credentials = $request->only(['email', 'password']);
-        if (Auth::attempt($credentials)) {
-          $token = $user->createToken('Token Name', ['read-list'])->accessToken;
+        $clientResponse = Http::post('http://localhost:8000/oauth/token', [
+          'grant_type' => 'password',
+          'client_id' => config('oauth.client.id'),
+          'client_secret' => config('oauth.client.secret'),
+          'username' => $request->email,
+          'password' => $request->password,
+          'scopes' => ['read-list']
+        ])->json();
+        if($clientResponse->failed()){
           return response()->json([
-            'message' => 'Logged in',
-            'token' => $token
-          ], 200);
-        } else {
-          return response()->json(['error' => 'Unauthorized'], 401);
+            'message' => 'Could not login',
+            'error' => $clientResponse
+          ], 401);
         }
-      } catch (\Throwable $th) {
-        return response()->json([
-          'message' => 'Could not login',
-          'error' => $th->getMessage()
-        ]);
+
+        $tokenRequest = Request::create(
+          '/oauth/token',
+          'post'
+        );
+        return Route::dispatch($tokenRequest);
+      } else {
+        return response()->json(['error' => 'Unauthorized'], 401);
       }
-      return response('This is the login endpoint', 200);
+    } catch (\Throwable $th) {
+      return response()->json([
+        'message' => 'Could not login',
+        'error' => $th->getMessage()
+      ]);
     }
+    return response('This is the login endpoint', 200);
+  }
 }
