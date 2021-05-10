@@ -22,7 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('login', [AuthController::class, 'login']);
 Route::get('duck', function(Request $request) {
   return 'quack';
-});
+})->middleware(['auth:api', 'scope:read-list']);
 
 // Route::get('list', function(Request $request) {
 //   return 'You have issued the token';

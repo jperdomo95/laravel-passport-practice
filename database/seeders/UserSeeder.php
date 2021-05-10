@@ -8,17 +8,18 @@ use Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
-    {
-      User::create([
-        'email' => 'jperdomo@gmail.com',
-        'name' => 'Julio Perdomo',
-        'password' => Hash::make('123qweAS')
+  /**
+  * Run the database seeds.
+  *
+  * @return void
+  */
+  public function run()
+  {
+    $me = User::create([
+      'email' => 'jperdomo@gmail.com',
+      'name' => 'Julio Perdomo',
+      'password' => Hash::make('123qweAS'),
+      'email_verified_at' => now()
       ]);
     }
-}
+  }

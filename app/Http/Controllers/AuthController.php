@@ -17,29 +17,20 @@ class AuthController extends Controller
       $user = User::where('email', $request->email)->firstOrFail();
       $credentials = $request->only(['email', 'password']);
       if (Auth::attempt($credentials)) {
-        die('logueado');
         // $token = $user->createToken('Token Name', ['read-list'])->accessToken;
 
-        $clientResponse = Http::post('http://localhost:8000/oauth/token', [
+        $response = Http::post('http://passport.test/oauth/token', [
           'grant_type' => 'password',
           'client_id' => config('oauth.client.id'),
           'client_secret' => config('oauth.client.secret'),
-          'username' => $request->email,
-          'password' => $request->password,
-          'scopes' => ['read-list']
-        ])->json();
-        if($clientResponse->failed()){
-          return response()->json([
-            'message' => 'Could not login',
-            'error' => $clientResponse
-          ], 401);
+          'username' => 'jperdomo@gmail.com',
+          'password' => '123qweAS',
+          'scope' => 'read-list'
+        ]);
+        if($response->failed()){
+          return response()->json($response, 401);
         }
-
-        $tokenRequest = Request::create(
-          '/oauth/token',
-          'post'
-        );
-        return Route::dispatch($tokenRequest);
+        return response()->json($response->json());
       } else {
         return response()->json(['error' => 'Unauthorized'], 401);
       }
