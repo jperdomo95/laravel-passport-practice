@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Scope extends Model
 {
-    use HasFactory;
+  use HasFactory;
 
-    protected $fillable = ['name'];
+  protected $fillable = ['name'];
+
+  public function roles()
+  {
+    return $this->belongsToMany(Role::class, 'roles_scopes', 'scope_id', 'role_id');
+  }
 }
