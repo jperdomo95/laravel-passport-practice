@@ -30,5 +30,9 @@ class RolesSeeder extends Seeder
     $admin = Role::where('name', 'admin')->first();
     $adminScopes = Scope::all();
     $admin->scopes()->attach($adminScopes);
+    
+    $aux = Role::where('name', 'aux')->first();
+    $auxScopes = Scope::where('name', 'LIKE', '%create%')->pluck('id');
+    $aux->scopes()->attach($auxScopes);
   }
 }
