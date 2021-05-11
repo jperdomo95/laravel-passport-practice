@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use App\Http\Requests\AuthLoginRequest;
 use Auth, Hash;
+use Exception;
 use Laravel\Passport\{TokenRepository, RefreshTokenRepository};
 
 class AuthController extends Controller
@@ -48,6 +49,45 @@ class AuthController extends Controller
       'scope' => implode(" ", $user->role->scopes->pluck('name')->toArray())
     ]);
     return $response;
+  }
+
+  public function registerAndLogin(Request $request)
+  {
+    $newUser = new User();
+    $newUser->name = $request->name;
+    $newUser->email = $request->email;
+    $newUser->password = Hash::make($request->password);
+    $newUser->role_id = $request->role_id;
+    $newUser->save();
+    try {
+      $tokenResponse = $this->requestToken($request, $newUser);
+      if($tokenResponse->failed())
+        throw new Exception("Not authenticaded");
+      return response()->json($tokenResponse->json(), 200);
+    } catch (\Throwable $th) {
+      return response()->json([
+        'message' => 'Could not login',
+        'error' => $th->getMessage()
+      ]);
+    }
+  }
+
+  public function register(Request $request)
+  {
+    $newUser = new User();
+    $newUser->name = $request->name;
+    $newUser->email = $request->email;
+    $newUser->password = Hash::make($request->password);
+    $newUser->role_id = $request->role_id;
+    $newUser->save();
+    try {
+      return response()->json($newUser, 200);
+    } catch (\Throwable $th) {
+      return response()->json([
+        'message' => 'Could not login',
+        'error' => $th->getMessage()
+      ]);
+    }
   }
 
   public function logout(Request $request)

@@ -30,7 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         if (! $this->app->routesAreCached()) {
           Passport::routes();
         }
-				$scopes = Scope::all()->pluck('description', 'name')->toArray();
+        $scopes = Scope::all()->pluck('description', 'name')->toArray();
         Passport::tokensCan($scopes);
     }
 }
