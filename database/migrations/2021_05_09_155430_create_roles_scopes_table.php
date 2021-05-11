@@ -19,7 +19,7 @@ class CreateRolesScopesTable extends Migration
             $table->unsignedBigInteger('role_id');
 
             $table->foreign('scope_id')->references('id')->on('scopes');
-            $table->foreign('role_id')->references('id')->on('users');
+            $table->foreign('role_id')->references('id')->on('roles');
             $table->timestamps();
         });
     }

@@ -30,9 +30,13 @@ class RolesSeeder extends Seeder
     $admin = Role::where('name', 'admin')->first();
     $adminScopes = Scope::all();
     $admin->scopes()->attach($adminScopes);
-    
+
     $aux = Role::where('name', 'aux')->first();
     $auxScopes = Scope::where('name', 'LIKE', '%create%')->pluck('id');
     $aux->scopes()->attach($auxScopes);
+
+    $campusDirector = Role::where('name', 'campus-director')->first();
+    $campusDirectorScopes = Scope::where('name', 'LIKE', '%create%')->orWhere('name', 'LIKE', '%assign%')->pluck('id');
+    $campusDirector->scopes()->attach($campusDirectorScopes);
   }
 }
