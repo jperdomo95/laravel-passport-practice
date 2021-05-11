@@ -19,11 +19,22 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('login', [AuthController::class, 'login']);
-Route::get('duck', function(Request $request) {
-  return 'quack';
-})->middleware(['auth:api', 'scope:read-list']);
+Route::get('scopes', function(Request $request) {
+  return \Laravel\Passport\Passport::scopes();
+});
 
-// Route::get('list', function(Request $request) {
-//   return 'You have issued the token';
-// })->middleware(['auth:api', 'scope:read-list']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout'])->middleware(['auth:api']);
+
+Route::get('weapons', function(Request $request) {
+  return 'list weapons';
+})->middleware(['auth:api', 'scope:read-weapons']);
+Route::post('weapons', function(Request $request) {
+  return 'read weapons';
+})->middleware(['auth:api', 'scope:create-weapons']);
+Route::delete('weapons', function(Request $request) {
+  return 'create weapons';
+})->middleware(['auth:api', 'scope:delete-weapons']);
+Route::put('weapons', function(Request $request) {
+  return 'update weapons';
+})->middleware(['auth:api', 'scope:update-weapons']);

@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
+use App\Models\Scope;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -29,8 +30,7 @@ class AuthServiceProvider extends ServiceProvider
         if (! $this->app->routesAreCached()) {
           Passport::routes();
         }
-        Passport::tokensCan([
-          'read-list' => 'Read generic list'
-        ]);
+				$scopes = Scope::all()->pluck('description', 'name')->toArray();
+        Passport::tokensCan($scopes);
     }
 }
