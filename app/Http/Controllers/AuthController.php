@@ -53,13 +53,8 @@ class AuthController extends Controller
 
   public function registerAndLogin(Request $request)
   {
-    $newUser = new User();
-    $newUser->name = $request->name;
-    $newUser->email = $request->email;
-    $newUser->password = Hash::make($request->password);
-    $newUser->role_id = $request->role_id;
-    $newUser->save();
     try {
+      $newUser = $this->storeUser($request);
       $tokenResponse = $this->requestToken($request, $newUser);
       if($tokenResponse->failed())
         throw new Exception("Not authenticaded");
@@ -74,13 +69,8 @@ class AuthController extends Controller
 
   public function register(Request $request)
   {
-    $newUser = new User();
-    $newUser->name = $request->name;
-    $newUser->email = $request->email;
-    $newUser->password = Hash::make($request->password);
-    $newUser->role_id = $request->role_id;
-    $newUser->save();
     try {
+      $newUser = $this->storeUser($request);
       return response()->json($newUser, 200);
     } catch (\Throwable $th) {
       return response()->json([
@@ -88,6 +78,17 @@ class AuthController extends Controller
         'error' => $th->getMessage()
       ]);
     }
+  }
+
+  private function storeUser(Request $request)
+  {
+    $newUser = new User();
+    $newUser->name = $request->name;
+    $newUser->email = $request->email;
+    $newUser->password = Hash::make($request->password);
+    $newUser->role_id = $request->role_id;
+    $newUser->save();
+    return $newUser;
   }
 
   public function logout(Request $request)
