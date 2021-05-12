@@ -25,6 +25,7 @@ Route::get('scopes', function(Request $request) {
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register'])->middleware(['auth:api', 'scope:create-users']);
+Route::patch('reset/password', [AuthController::class, 'resetPassword'])->middleware(['auth:api', 'scope:update-users']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware(['auth:api']);
 
 Route::get('weapons', function(Request $request) {

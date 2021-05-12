@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\User;
 use App\Http\Requests\AuthLoginRequest;
+use App\Http\Requests\Auth\ResetPasswordRequest;
 use Auth, Hash;
 use Exception;
 use Laravel\Passport\{TokenRepository, RefreshTokenRepository};
@@ -58,7 +59,7 @@ class AuthController extends Controller
       $tokenResponse = $this->requestToken($request, $newUser);
       if($tokenResponse->failed())
         throw new Exception("Not authenticaded");
-      return response()->json($tokenResponse->json(), 200);
+      return response()->json($tokenResponse->json(), 201);
     } catch (\Throwable $th) {
       return response()->json([
         'message' => 'Could not login',
@@ -71,7 +72,7 @@ class AuthController extends Controller
   {
     try {
       $newUser = $this->storeUser($request);
-      return response()->json($newUser, 200);
+      return response()->json($newUser, 201);
     } catch (\Throwable $th) {
       return response()->json([
         'message' => 'Could not login',
@@ -101,5 +102,20 @@ class AuthController extends Controller
     // Revoke all of the token's refresh tokens...
     $this->refreshTokenRepository->revokeRefreshTokensByAccessTokenId($request->user()->token()->id);
     return response()->json(['message' => 'Logged out'], 200);
+  }
+
+  public function resetPassword(ResetPasswordRequest $request)
+  {
+    try {
+      $user = Auth::user();
+      $user->password = Hash::make($request->password);
+      $user->save();
+      return response()->json(['message' => 'Password updated'], 200);
+    } catch (\Throwable $th) {
+      return response()->json([
+        'message' => 'Password not updated',
+        'error' => $th->getMessage()
+      ], 200);
+    }
   }
 }
